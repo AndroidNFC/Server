@@ -59,21 +59,10 @@
  */
 class DATABASE_CONFIG {
 
-	public $test = array(
-		'datasource' => 'Database/Mysql',
-		'persistent' => false,
-		'host' => 'localhost',
-		'login' => 'root',
-		'password' => '',
-		'database' => 'zoomtouch_nfc_android',
-		'prefix' => '',
-		//'encoding' => 'utf8',
-	);
-
 	public $default = array(
 		'datasource' => 'Database/Mysql',
 		'persistent' => false,
-		'host' => '',
+		'host' => 'localhost',
 		'login' => 'zoomtouch',
 		'password' => '',
 		'database' => 'zoomtouch',

@@ -33,6 +33,7 @@ class TagsController extends AppController {
         $this->set('service_options', $service_options);
 
         if ($this->request->is('post')) {
+            
             $old_last_tag = $this->Tag->find('first', array(
                 'order' => array('Tag.id DESC')
             ));
@@ -43,6 +44,7 @@ class TagsController extends AppController {
 
             $this->Tag->set('first_tag_id', $first_tag_id);
             $this->Tag->set('last_tag_id', $last_tag_id);
+            
             $success = $this->Tag->save($this->request->data);
             if ($success) {
                 $this->Session->setFlash('The tag has been saved.');
@@ -54,10 +56,26 @@ class TagsController extends AppController {
     }
 
     public function admin_edit($id = null) {
+        
+        // Tell CakePHP we are editing the model instead of inserting new one.
         $this->Tag->id = $id;
+        
+        $this->loadModel('Service');
+        $services = $this->Service->find('all');
+        $service_options = array();
+        foreach($services as $service) {
+            $service_id = $service['Service']['id'];
+            $service_options[$service_id] = $service['Service']['name'];
+        }
+        $this->set('service_options', $service_options);
+        
         if ($this->request->is('get')) {
             $this->request->data = $this->Tag->read();
         } else {
+            
+            $new_num_tags = $this->request->data['Tag']['number_of_tags'];
+            $this->Tag->setNumberOfTags($id, $new_num_tags);
+            
             $success = $this->Tag->save($this->request->data);
             if ($success) {
                 $this->Session->setFlash('The tag has been updated.');

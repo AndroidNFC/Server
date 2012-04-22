@@ -1,4 +1,4 @@
-<h1>Services</h1>
+<h1>Manage Services</h1>
 <p>
 <?php echo $this->Html->link("Add Service", array('action' => 'add')); ?>
 </p>

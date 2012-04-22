@@ -62,18 +62,37 @@ class ServicesController extends AppController {
         }
     }
 
-	private function get_services_xml_array_for_discount_service($service) {                    
+    private function get_services_xml_array($cake_array) {
+        
+        $xmlArray= array('services' => array());
+        foreach ($cake_array as $service) {
+            
+			if($this->params['url']['service_id'] == $service['Service']['id'] &&
+			   $this->params['url']['service_id'] == 1 ) {
+					$xmlArray['services'] = $this->get_discount_service_elements($service);
+			}
+            
+			else if($this->params['url']['service_id'] == $service['Service']['id'] &&
+                    $this->params['url']['service_id'] == 2 ) {
+					$xmlArray['services'] = $this->get_movie_service_elements($service);
+			}
+            
+		}
+        return $xmlArray;
+    }
+    
+	private function get_discount_service_elements($service) {
+        
     	foreach ($service['Tag'] as $tag) {
-           	if( $this->check_tag($tag))
-			{
-				$service_buttons = array(
+            
+           	if( $this->check_tag($tag)) {
+                $service_buttons = array(
 	           		'button1' => $tag['phone_number'],
                     'button2' => $tag['url'],
                     'button3' => $tag['phone_number'],
                     'button4' => $tag['url']
 				);
-				// tag is in the range
-	           $service_tag = array(
+                $service_tag = array(
 	           		'type' => 'Discount App',
                     'id' => $tag['id'],	 
                     'event'	=> $tag['url'],
@@ -82,7 +101,6 @@ class ServicesController extends AppController {
                 );
 			}
 			else {
-				// tag is not in the range.
 				continue;
 			}            
 
@@ -91,16 +109,17 @@ class ServicesController extends AppController {
         return $xmlArray;
     }
 
-	private function get_services_xml_array_for_movie_service($service) {                    
+	private function get_movie_service_elements($service) {
+        $xmlArray = array();
         foreach ($service['Tag'] as $tag) {
            	if($this->check_tag($tag))
 			{
-				$events = array(
+                $events = array(
 	           		'event1' => $tag['phone_number'],
                     'event2' => $tag['url'],                    
 				);
 				// tag is in the range
-	           $service_tag = array(
+                $service_tag = array(
 	           		'type' => 'Finkino Movie app',
                     'id' => $tag['id'],	 
                     'description' => $tag['content'],
@@ -121,34 +140,9 @@ class ServicesController extends AppController {
     	if( $this->params['url']['tag_id'] >= $tag['first_tag_id'] &&
 			$this->params['url']['tag_id'] <= $tag['last_tag_id'] )
 		{
-		 	return 1 ; // true
+		 	return true;
         }
-        return 0; // false
+        return false;
     }
-
-
-    private function get_services_xml_array($cake_array) {                    
-        foreach ($cake_array as $service) {        	
-			if( $this->params['url']['service_id'] == $service['Service']['id'] &&
-			    $this->params['url']['service_id'] == 1 )
-				// hardcore 1 for discount app.
-				{
-					$xmlArray = $this->get_services_xml_array_for_discount_service($service);
-				}
-			else if( $this->params['url']['service_id'] == $service['Service']['id'] &&
-			    $this->params['url']['service_id'] == 2 )
-				{
-					$xmlArray = $this->get_services_xml_array_for_movie_service($service);
-				}
-			else {
-				{
-					// no releavent service found
-				}
-			}
-		}
-        return $xmlArray;
-    }
-
-	
 
 }
