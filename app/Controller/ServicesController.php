@@ -13,11 +13,17 @@ class ServicesController extends AppController {
             ));
         } else if (isset($this->request->query['tag_id'])) {
             $tid = $this->request->query['tag_id'];
-            $tag = $this->Service->Tag->find('first');
-            $sid = $tag['Service']['id'];
-            $services[0] = $this->Service->find('first', array(
-                'conditions' => array('Service.id' => $sid),
+            $tag = $this->Service->Tag->find('first', array(
+                'conditions' => array(
+                    'Tag.first_tag_id <=' => $tid,
+                    'Tag.last_tag_id >='  => $tid),
             ));
+            if (!empty($tag)) {
+                $sid = $tag['Service']['id'];
+                $services[0] = $this->Service->find('first', array(
+                    'conditions' => array('Service.id' => $sid),
+                ));
+            }
         } else {
             $services = $this->Service->find('all');
         }
