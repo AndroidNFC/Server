@@ -22,6 +22,14 @@
         </td>
         <td><?php echo $event['Event']['type']; ?></td>
         <td><?php echo $event['Event']['value']; ?></td>
+        <td>
+            <?php echo $this->Form->postLink('Delete',
+                array('action' => 'delete', $event['Event']['id']),
+                array('confirm' => 'Are you sure?'));
+            ?>
+            <?php echo $this->Html->link('Edit', array(
+                'action' => 'edit', $event['Event']['id'])); ?>
+        </td>
         <td><?php echo $event['Event']['created']; ?></td>
     </tr>
 

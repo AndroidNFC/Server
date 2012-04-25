@@ -22,6 +22,14 @@
         </td>
         <td><?php echo $button['Button']['type']; ?></td>
         <td><?php echo $button['Button']['value']; ?></td>
+        <td>
+            <?php echo $this->Form->postLink('Delete',
+                array('action' => 'delete', $button['Button']['id']),
+                array('confirm' => 'Are you sure?'));
+            ?>
+            <?php echo $this->Html->link('Edit', array(
+                'action' => 'edit', $button['Button']['id'])); ?>
+        </td>
         <td><?php echo $button['Button']['created']; ?></td>
     </tr>
 
