@@ -8,12 +8,18 @@ class Tag extends AppModel {
             'foreignKey' => 'service_id'
         )
     );
-    //public $hasOne = array(
-    //    'Page' => array(
-    //        'className' => 'Page',
-    //        'dependent' => true
-    //    )
-    //);
+    public $hasMany = array(
+        'Button' => array(
+            'className'     => 'Button',
+            'foreignKey'    => 'tag_id',
+            'dependent'     => true
+        ),
+        'Event' => array(
+            'className'     => 'Event',
+            'foreignKey'    => 'tag_id',
+            'dependent'     => true
+        ),
+    );
 
     public $virtualFields = array(
         'number_of_tags' => 'Tag.last_tag_id - Tag.first_tag_id + 1'

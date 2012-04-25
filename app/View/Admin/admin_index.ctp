@@ -7,5 +7,11 @@
 <li><?php echo $this->Html->link("Tags", array(
                                 'controller' => 'tags',
                                 'action' => 'admin_index')); ?></li>
+<li><?php echo $this->Html->link("Buttons", array(
+                                'controller' => 'buttons',
+                                'action' => 'admin_index')); ?></li>
+<li><?php echo $this->Html->link("Events", array(
+                                'controller' => 'events',
+                                'action' => 'admin_index')); ?></li>
 </ul>
 </p>

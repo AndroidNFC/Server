@@ -4,13 +4,29 @@ class ServicesController extends AppController {
     public $components = array('Session', 'RequestHandler');
 	
     public function index() {
-        $services = $this->Service->find('all');
+        $services = array();
+        
+        if (isset($this->request->query['service_id'])) {
+            $sid = $this->request->query['service_id'];
+            $services[0] = $this->Service->find('first', array(
+                'conditions' => array('Service.id' => $sid),
+            ));
+        } else if (isset($this->request->query['tag_id'])) {
+            $tid = $this->request->query['tag_id'];
+            $tag = $this->Service->Tag->find('first');
+            $sid = $tag['Service']['id'];
+            $services[0] = $this->Service->find('first', array(
+                'conditions' => array('Service.id' => $sid),
+            ));
+        } else {
+            $services = $this->Service->find('all');
+        }
+        
         $xmlArray = $this->get_services_xml_array($services);
 
         $this->set('services', $services);
         $this->set('services_xml', $xmlArray);
     }
-
 
     public function admin_index() {
         $this->set('services', $this->Service->find('all'));
@@ -23,6 +39,7 @@ class ServicesController extends AppController {
     }
 
     public function admin_add() {
+        
         if ($this->request->is('post')) {
             $success = $this->Service->save($this->request->data);
             if ($success) {
@@ -32,6 +49,7 @@ class ServicesController extends AppController {
                 $this->Session->setFlash('Unable to add the service.');
             }
         }
+        
     }
 
     public function admin_edit($id = null) {
@@ -67,82 +85,78 @@ class ServicesController extends AppController {
         $xmlArray= array('services' => array());
         foreach ($cake_array as $service) {
             
-			if($this->params['url']['service_id'] == $service['Service']['id'] &&
-			   $this->params['url']['service_id'] == 1 ) {
-					$xmlArray['services'] = $this->get_discount_service_elements($service);
-			}
+            if (isset($this->request->query['tag_id'])) {
+                $tid = $this->request->query['tag_id'];
+                $button_elements = $this->get_button_elements($tid);
+                $event_elements =  $this->get_event_elements($tid);
+            } else {
+                $button_elements = $this->get_button_elements();
+                $event_elements =  $this->get_event_elements();
+            }
             
-			else if($this->params['url']['service_id'] == $service['Service']['id'] &&
-                    $this->params['url']['service_id'] == 2 ) {
-					$xmlArray['services'] = $this->get_movie_service_elements($service);
-			}
+            $service_element = array(
+                'name' => $service['Service']['name'],
+                'id' => $service['Service']['id'],
+                'description' => $service['Service']['description'],
+                'provider' => $service['Service']['provider'],
+                'buttons' => $button_elements,
+                'events' => $event_elements,
+            );         
+            $xmlArray['services']['service'][] = $service_element;
             
 		}
         return $xmlArray;
     }
     
-	private function get_discount_service_elements($service) {
+    private function get_tag_elements($service_id) {
         
-    	foreach ($service['Tag'] as $tag) {
-            
-           	if( $this->check_tag($tag)) {
-                $service_buttons = array(
-	           		'button1' => $tag['phone_number'],
-                    'button2' => $tag['url'],
-                    'button3' => $tag['phone_number'],
-                    'button4' => $tag['url']
-				);
-                $service_tag = array(
-	           		'type' => 'Discount App',
-                    'id' => $tag['id'],	 
-                    'event'	=> $tag['url'],
-                    'description' => $tag['content'],	               
-                    'buttons' => $service_buttons
-                );
-			}
-			else {
-				continue;
-			}            
+        $tags = array();
+        $tags = $this->Service->Tag->find('all');
+        
+        $tag_elements = array('tag' => array());
+    	foreach ($tags as $tag) {
+            if ($tag['Tag']['service_id'] == $service_id)
+            $tag_elements['tag'][] = $tag['Tag']['id'];
 
-            $xmlArray['service'][] = $service_tag;
         }
-        return $xmlArray;
+        
+        return $tag_elements;
+        
     }
-
-	private function get_movie_service_elements($service) {
-        $xmlArray = array();
-        foreach ($service['Tag'] as $tag) {
-           	if($this->check_tag($tag))
-			{
-                $events = array(
-	           		'event1' => $tag['phone_number'],
-                    'event2' => $tag['url'],                    
-				);
-				// tag is in the range
-                $service_tag = array(
-	           		'type' => 'Finkino Movie app',
-                    'id' => $tag['id'],	 
-                    'description' => $tag['content'],
-                    'events'	=> $events
-                );
-			}
-			else {
-				// tag is not in the range.
-				continue;
-			}            
-
-            $xmlArray['service'][] = $service_tag;
+    
+	private function get_button_elements($tag_id=null) {
+        
+        $this->loadModel('Button');
+        $buttons = $this->Button->find('all', array(
+            'conditions' => array(
+                'Tag.first_tag_id <=' => $tag_id,
+                'Tag.last_tag_id >='  => $tag_id,
+            ),
+        ));
+        
+        $button_elements = array('button' => array());
+    	foreach ($buttons as $button) {
+            $button_elements['button'][] = $button['Button']['value'];
         }
-        return $xmlArray;
+        
+        return $button_elements;
     }
-
-	private function check_tag($tag) {
-    	if( $this->params['url']['tag_id'] >= $tag['first_tag_id'] &&
-			$this->params['url']['tag_id'] <= $tag['last_tag_id'] )
-		{
-		 	return true;
+    
+	private function get_event_elements($tag_id=null) {
+        
+        $this->loadModel('Event');
+        $events = $this->Event->find('all', array(
+            'conditions' => array('Tag.id' => $tag_id),
+        ));
+        
+        $event_elements = array('event' => array());
+    	foreach ($events as $event) {
+            if ($tag_id == null || $event['Event']['tag_id'] == $tag_id) {
+                $event_elements['event'][] = $event['Event']['value'];
+            }
         }
-        return false;
+        
+        return $event_elements;
     }
 
 }

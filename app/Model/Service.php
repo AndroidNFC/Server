@@ -8,16 +8,16 @@ class Service extends AppModel {
             'foreignKey'    => 'service_id',
             'order'         => 'Tag.created DESC',
             'dependent'     => true
-        )
+        ),
     );
 
     public $validate = array(
-        'title' => array(
+        'name' => array(
             'rule' => 'notEmpty'
         ),
-        'content' => array(
+        'provider' => array(
             'rule' => 'notEmpty'
-        )
+        ),
     );
 
 }
