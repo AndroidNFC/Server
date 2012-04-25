@@ -115,22 +115,6 @@ class ServicesController extends AppController {
         return $xmlArray;
     }
     
-    private function get_tag_elements($service_id) {
-        
-        $tags = array();
-        $tags = $this->Service->Tag->find('all');
-        
-        $tag_elements = array('tag' => array());
-    	foreach ($tags as $tag) {
-            if ($tag['Tag']['service_id'] == $service_id)
-            $tag_elements['tag'][] = $tag['Tag']['id'];
-
-        }
-        
-        return $tag_elements;
-        
-    }
-    
 	private function get_button_elements($tag_id=null) {
         
         $this->loadModel('Button');
@@ -143,7 +127,10 @@ class ServicesController extends AppController {
         
         $button_elements = array('button' => array());
     	foreach ($buttons as $button) {
-            $button_elements['button'][] = $button['Button']['value'];
+            $button_elements['button'][] = array(
+                '@type' => $button['Button']['type'],
+                '@'     => $button['Button']['value'],
+            );
         }
         
         return $button_elements;
@@ -161,10 +148,30 @@ class ServicesController extends AppController {
         
         $event_elements = array('event' => array());
     	foreach ($events as $event) {
-            $event_elements['event'][] = $event['Event']['value'];
+            $event_elements['event'][] = array(
+                '@type' => $event['Event']['type'],
+                '@'     => $event['Event']['value'],
+            );
         }
         
         return $event_elements;
+    }
+    
+    // Not used at the moment.
+    private function get_tag_elements($service_id) {
+        
+        $tags = array();
+        $tags = $this->Service->Tag->find('all');
+        
+        $tag_elements = array('tag' => array());
+    	foreach ($tags as $tag) {
+            if ($tag['Tag']['service_id'] == $service_id)
+            $tag_elements['tag'][] = $tag['Tag']['id'];
+
+        }
+        
+        return $tag_elements;
+        
     }
 
 }

@@ -1,4 +1,7 @@
 <?php
-    $xml = Xml::build($services_xml);
-    echo $xml->saveXML();
+    //$xmlObject = Xml::build($services_xml);
+    $xmlObject = Xml::fromArray($services_xml, array(
+        'format' => 'tags'
+    ));
+    echo $xmlObject->saveXML();
 ?>
