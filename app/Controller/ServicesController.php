@@ -99,9 +99,16 @@ class ServicesController extends AppController {
                 'id' => $service['Service']['id'],
                 'description' => $service['Service']['description'],
                 'provider' => $service['Service']['provider'],
-                'buttons' => $button_elements,
-                'events' => $event_elements,
-            );         
+            );
+            
+            if (!empty($button_elements['button'])) {
+                $service_element['buttons'] = $button_elements;
+            }
+            
+            if (!empty($event_elements['event'])) {
+                $service_element['events'] = $event_elements;
+            }
+            
             $xmlArray['services']['service'][] = $service_element;
             
 		}
@@ -146,14 +153,15 @@ class ServicesController extends AppController {
         
         $this->loadModel('Event');
         $events = $this->Event->find('all', array(
-            'conditions' => array('Tag.id' => $tag_id),
+            'conditions' => array(
+                'Tag.first_tag_id <=' => $tag_id,
+                'Tag.last_tag_id >='  => $tag_id,
+            ),
         ));
         
         $event_elements = array('event' => array());
     	foreach ($events as $event) {
-            if ($tag_id == null || $event['Event']['tag_id'] == $tag_id) {
-                $event_elements['event'][] = $event['Event']['value'];
-            }
+            $event_elements['event'][] = $event['Event']['value'];
         }
         
         return $event_elements;
